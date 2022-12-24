@@ -18,7 +18,7 @@ const Login = () => {
         // console.log($email.value);
 
         // 패스워드 입력값
-        const $password = document.getElementById('password');
+        const $password1 = document.getElementById('password1');
         // console.log($password.value);
 
         // 서버에 로그인 요청
@@ -27,7 +27,7 @@ const Login = () => {
             headers: { 'Content-type': 'application/json' },
             body: JSON.stringify({
                 email : $email.value,
-                password: $password.value
+                password1: $password1.value
             })
         })
         .then(res => {
@@ -37,10 +37,10 @@ const Login = () => {
         .then(loginUserData => {
             console.log(loginUserData);
             if (loginUserData.message) {
-                // console.log('로그인 실패');
+                console.log('로그인 실패');
                 alert(loginUserData.message);
             } else {
-                // console.log('로그인 성공');
+                console.log('로그인 성공');
 
                 // 로그인 성공시 받은 토큰을 로컬 스토리지에 저장
                 localStorage.setItem('ACCESS_TOKEN', loginUserData.token);
@@ -89,7 +89,7 @@ const Login = () => {
                             name="password"
                             label="on your password"
                             type="password"
-                            id="password"
+                            id="password1"
                             autoComplete="current-password"
                         />
                     </Grid>
@@ -99,8 +99,8 @@ const Login = () => {
                             fullWidth
                             variant="contained"
                             color="primary"
-                        >
-                            로그인
+                            >   
+                        로그인
                         </Button>
                     </Grid>
                 </Grid>

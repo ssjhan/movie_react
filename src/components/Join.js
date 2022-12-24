@@ -1,31 +1,55 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {Button, Container, Grid, TextField, Typography, Link} from "@mui/material";
-
 import { API_BASE_URL } from "../config/host-config";
+import {Helmet} from "react-helmet";
+import SignUp from "./SignUp";
+
+import PopupDom from './PopupDom';
+import PopupPostCode from './PopupPostCode';
+ 
+
 import { isValidDateValue } from "@testing-library/user-event/dist/utils";
 
+import DaumPostCode from 'react-daum-postcode';
+import { CheckBox } from "@mui/icons-material";
+
 const Join = () => {
+
+     const [enroll_company, setEnroll_company] = useState({
+        address:'',
+    });
+    
+    const [popup, setPopup] = useState(false);
 
     // 회원 입력 정보 상태관리
     const [user, setUser] = useState({
         username: '',
         email: '',
-        password: ''
+        password1: '',
+        telnumber : '',
+        addr : '',
+        detailaddr : ''
     });
     // 검증 메시지 상태관리
     const [msg, setMsg] = useState({
         username: '',
         email: '',
-        password: ''
+        password1: '',
+        telnumber : '',
+        addr : '',
+        detailaddr : ''
     });
     // 검증 완료 여부 상태관리
     const [validate, setValidate] = useState({
         username: false,
         email: false,
-        password: false
+        password1: false,
+        telnumber: false,
+        addr : false,
+        detailaddr : false
     });
 
-
+      
 
     // 회원이름을 입력처리 하는 이벤트 핸들러
     const nameHandler = e => {
@@ -60,17 +84,40 @@ const Join = () => {
         let message;
         if (!e.target.value) {
             message = '비밀번호는 필수값입니다!';
-            setValidate({...validate, password: false});
+            setValidate({...validate, password1: false});
         } else if (!pwRegex.test(e.target.value)) {
             message = '8자리 이상의 특수문자, 숫자를 포함해주세요!';
-            setValidate({...validate, password: false});
+            setValidate({...validate, password1: false});
         } else {
             message = '사용할 수 있는 비밀번호입니다!';
-            setValidate({...validate, password: true});
+            setValidate({...validate, password1: true});
         }
-        setMsg({...msg, password: message});
+        setMsg({...msg, password1: message});
 
-        setUser({...user, password: e.target.value});
+        setUser({...user, password1: e.target.value});
+
+    };
+
+    
+    //전화번호 입력 검증
+    const telnumberdHandler = (e) => {
+
+        const tlRegex =  /(01[016789])-([1-9]{1}[0-9]{2,3})-([0-9]{4})$/;
+
+        let message;
+        if (!e.target.value) {
+            message = '전화번호는 필수값입니다!';
+            setValidate({...validate, telnumber: false});
+        } else if (!tlRegex.test(e.target.value)) {
+            message = 'xxx-xxxx-xxx(형태로 입력해주세요!)';
+            setValidate({...validate, telnumber: false});
+        } else {
+            message = '사용할 수 있는 전화번호입니다.';
+            setValidate({...validate, telnumber: true});
+        }
+        setMsg({...msg, telnumber: message});
+
+        setUser({...user, telnumber: e.target.value});
 
     };
 
@@ -110,6 +157,39 @@ const Join = () => {
         setUser({...user, email: e.target.value})
     };
 
+    const addr = (e) => {
+
+
+        let message;
+        if (!e.target.value) {
+            message = '전화번호는 주소입니다!';
+            setValidate({...validate, addr: false});
+        }  else {
+            message = '사용할 수 있는 전화번호입니다.';
+            setValidate({...validate, addr: true});
+        }
+        setMsg({...msg, addr: message});
+
+        setUser({...user, addr: e.target.value});
+
+    };
+
+    const detailaddr = (e) => {
+
+        let message;
+        if (!e.target.value) {
+            message = '전화번호는 주소입니다!';
+            setValidate({...validate, detailaddr: false});
+        }  else {
+            message = '사용할 수 있는 전화번호입니다.';
+            setValidate({...validate, detailaddr: true});
+        }
+        setMsg({...msg, detailaddr: message});
+
+        setUser({...user, detailaddr: e.target.value});
+    };
+
+
 
     // 상태변수 validate내부값이 모두 true인지 확인
     const isValid = () => {
@@ -118,6 +198,35 @@ const Join = () => {
         }
         return true;
     };
+
+    useEffect(() => {
+        if(!document.getElementById("test")) {
+          const fileScript = document.createElement("script");
+          fileScript.id = "test";
+          fileScript.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+          document.body.appendChild(fileScript);
+          
+          fileScript.onload = () => {
+            // do something
+          };
+          
+          fileScript.onerror = () => {
+            console.log("load error!");
+          };
+        }
+      }, []);
+
+
+      
+
+
+
+
+            
+            
+      
+
+
 
     // 회원가입 처리 이벤트
     const joinHandler = e => {
@@ -143,6 +252,22 @@ const Join = () => {
             alert('입력란을 다시 확인하세요!');
         }
     };
+
+
+    	// 팝업창 상태 관리
+        const [isPopupOpen, setIsPopupOpen] = useState(false)
+ 
+        // 팝업창 열기
+        const openPostCode = () => {
+            setIsPopupOpen(true)
+        }
+     
+        // 팝업창 닫기
+        const closePostCode = () => {
+            setIsPopupOpen(false)
+        }
+
+
 
     return (
         <Container component="main" maxWidth="xs" style={{ marginTop: "180px" }}>
@@ -195,17 +320,66 @@ const Join = () => {
                         <span style={validate.password ? {color:'green'} : {color:'red'}}>{msg.password}</span>
                     </Grid>
                     <Grid item xs={12}>
+                        <TextField
+                            variant="outlined"
+                            required
+                            fullWidth
+                            name="telnumber"
+                            label="전화번호"
+                            type="tel"
+                            id="telnumber"
+                            autoComplete="telnumber"
+                            onChange={telnumberdHandler}
+                        />
+                        <span style={validate.telnumber ? {color:'green'} : {color:'red'}}>{msg.telnumber}</span>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField 
+                        label = "주소"
+                        type="text"
+                        fullWidth
+                        required={true}
+                         name="address" 
+                         id="sample4_postcode"
+                         onChange={addr}
+                        />          
+               <div>    
+            <Button type='button' onClick={openPostCode}>우편번호 검색</Button>
+            <div id='popupDom'>
+                {isPopupOpen && (
+                    <PopupDom>
+                         <PopupPostCode onClose={closePostCode} />
+                     </PopupDom>
+                )}
+            </div>  
+            </div>   
+                  </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            variant="outlined"
+                            required
+                            fullWidth
+                            name="detailaddr"
+                            label="상세주소"
+                            type="detailaddr"
+                            id="sample4_detailAddress"
+                            onChange={detailaddr}
+                            
+                        />
+                        <span style={validate.password ? {color:'green'} : {color:'red'}}>{msg.password}</span>
+                    </Grid>
+                    <Grid item xs={12}>
                         <Button type="submit" fullWidth variant="contained" color="primary">
                             계정 생성
                         </Button>
                     </Grid>
-                </Grid>
                 <Grid container justify="flex-end">
                     <Grid item>
                         <Link href="/login" variant="body2">
                             이미 계정이 있습니까? 로그인 하세요.
                         </Link>
                     </Grid>
+                </Grid>
                 </Grid>
             </form>
         </Container>

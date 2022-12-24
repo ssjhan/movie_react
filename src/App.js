@@ -4,6 +4,8 @@ import Todo from './components/Todo';
 import { List, Paper, Container } from '@mui/material';
 import AddTodo from './components/AddTodo';
 
+
+import DaumPostCode from 'react-daum-postcode';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Spinner } from 'reactstrap';
 
@@ -88,6 +90,28 @@ const App = () => {
     })
     ;
 };
+
+
+
+
+
+ // 팝업창 상태 관리
+ const [isPopupOpen, setIsPopupOpen] = useState(false)
+ 
+ // 팝업창 열기
+   const openPostCode = () => {
+       setIsPopupOpen(true)
+   }
+
+ // 팝업창 닫기
+   const closePostCode = () => {
+       setIsPopupOpen(false)
+   }
+
+
+
+
+
   
   const todoItems = itemList.map(item => 
   <Todo key={item.id} item={item} remove={remove} update={update} />);
@@ -95,7 +119,7 @@ const App = () => {
   useEffect(() => {
     
      // 할일 목록 불러오기
-     fetch(BASE_URL, {
+     fetch(BASE_URL, {                                                                                                               
         method: 'GET',
         headers: {
            'Authorization': 'Bearer ' + ACCESS_TOKEN 
@@ -146,11 +170,13 @@ const App = () => {
 
 
   return (
-    <div className="wrapper" style={{marginTop: 100}} >
+    <div id='popupDom' className="wrapper" style={{marginTop: 100}} >
       
         {loading ? loadingPage : viewPage}
-      
+        
+       
     </div>
+     
   );
 };
 
